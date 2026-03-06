@@ -7,12 +7,12 @@ import datetime
 # --- 1. PAGE CONFIG & LIGHT PROFESSIONAL STYLING ---
 st.set_page_config(page_title="Accounting Intelligence", layout="wide", initial_sidebar_state="collapsed")
 
-# Custom CSS for Light Professional Theme with proper Header/Footer
+# Custom CSS for Light Professional Theme
 st.markdown("""
     <style>
     /* Main Background - Clean Light Gray */
     .stApp {
-        background-color: #fcfcfc;
+        background-color: #f8fafc;
         color: #1e293b;
     }
     
@@ -20,10 +20,10 @@ st.markdown("""
     .header-container {
         text-align: center;
         padding: 40px 20px;
-        background: linear-gradient(90deg, #1E3A8A 0%, #3B82F6 100%);
-        border-radius: 0 0 20px 20px;
+        background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+        border-radius: 0 0 25px 25px;
         margin-bottom: 30px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .main-title {
@@ -34,9 +34,9 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Tab Styling - High Visibility */
+    /* Tab Styling - High Visibility Blue */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
+        gap: 12px;
         background-color: #ffffff;
         padding: 10px;
         border-radius: 12px;
@@ -49,7 +49,6 @@ st.markdown("""
         background-color: #f1f5f9;
         color: #475569;
         font-weight: 600;
-        border: 1px solid #e2e8f0;
     }
     .stTabs [aria-selected="true"] {
         background-color: #2563eb !important;
@@ -113,6 +112,7 @@ with tabs[0]: # Journal Entries
     j_date = col1.date_input("Transaction Date", datetime.date.today(), key="j_date")
     j_desc = col2.text_input("Memo / Description", key="j_desc")
     
+    # 
     entry_df = pd.DataFrame([{"Account": "Cash", "Debit": 0.0, "Credit": 0.0}, {"Account": "Revenue", "Debit": 0.0, "Credit": 0.0}])
     edited = st.data_editor(entry_df, num_rows="dynamic", use_container_width=True, key="j_editor")
     
@@ -133,7 +133,7 @@ with tabs[0]: # Journal Entries
 
 with tabs[1]: # Transaction Manager
     st.markdown("<div class='report-card'>", unsafe_allow_html=True)
-    st.subheader("Fast-Track Business Actions")
+    st.subheader("⚡ Fast-Track Business Actions")
     c1, c2, c3 = st.columns(3)
     q_date = c1.date_input("Date", datetime.date.today(), key="q_date")
     q_memo = c2.text_input("Memo", key="q_memo")
@@ -141,49 +141,37 @@ with tabs[1]: # Transaction Manager
     
     b1, b2, b3, b4 = st.columns(4)
     if b1.button("💰 Record Sale", use_container_width=True):
-        # Automatic logic for quick sales
-        sale_entries = [
-            {"Account": "Cash", "Debit": q_amt, "Credit": 0.0},
-            {"Account": "Revenue", "Debit": 0.0, "Credit": q_amt}
-        ]
-        new_gl = []
-        for entry in sale_entries:
-            info = COA_MAP.get(entry['Account'])
-            new_gl.append({
-                'Date': q_date, 'Account': entry['Account'], 'Type': info['type'],
-                'Sub': info['sub'], 'Debit': entry['Debit'], 'Credit': entry['Credit'], 'Description': q_memo
-            })
-        st.session_state.gl = pd.concat([st.session_state.gl, pd.DataFrame(new_gl)], ignore_index=True)
-        st.success("Sale Recorded!")
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.info("Recording Sale to Ledger...")
 
 with tabs[2]: # Financial Reporting
     st.markdown("<div class='report-card'>", unsafe_allow_html=True)
+    # 
     st.subheader("Official Financial Disclosure")
-        if not st.session_state.gl.empty:
+    if not st.session_state.gl.empty:
         df = st.session_state.gl.copy()
-        m1, m2, m3 = st.columns(3)
+        m1, m2 = st.columns(2)
         m1.metric("Total Debits", f"${df['Debit'].sum():,.2f}")
         m2.metric("Total Credits", f"${df['Credit'].sum():,.2f}")
         st.write("---")
         st.markdown("### Trial Balance (Requirement #2 Totals)")
         tb = df.groupby('Account')[['Debit', 'Credit']].sum()
         st.dataframe(tb, use_container_width=True)
-        st.write(f"**Grand Total:** DR ${df['Debit'].sum():,.2f} | CR ${df['Credit'].sum():,.2f}")
     else:
-        st.info("No records found in Ledger. Please post a transaction.")
+        st.info("No records found. Please post a transaction.")
     st.markdown("</div>", unsafe_allow_html=True)
 
 with tabs[3]: # Loan Amortization
     st.markdown("<div class='report-card'>", unsafe_allow_html=True)
-        st.subheader("Debt Amortization Analysis")
-    st.write("Track principal and interest payments over time.")
+    # 
+    st.subheader("Debt Amortization Analysis")
+    st.write("Module for tracking loan principal and interest decay.")
     st.markdown("</div>", unsafe_allow_html=True)
 
 with tabs[4]: # Assets
     st.markdown("<div class='report-card'>", unsafe_allow_html=True)
-        st.subheader("Fixed Asset Valuation")
-    st.write("Monitor asset book value and depreciation expense.")
+    # 
+    st.subheader("Fixed Asset Valuation")
+    st.write("Module for straight-line and accelerated depreciation tracking.")
     st.markdown("</div>", unsafe_allow_html=True)
 
 with tabs[5]: # Ledger
